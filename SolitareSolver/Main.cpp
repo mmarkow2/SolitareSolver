@@ -2,6 +2,11 @@
 
 int main(int argc, char* argv[]) {
 	Table tab;
-	tab.printTable();
+	bool finished;
+	do {
+		finished = tab.takeTurn();
+		tab.printTable();
+	} while (!finished);
+
 	return 0;
 }
