@@ -1,14 +1,10 @@
 #include "CardSet.h"
 
-#include <iostream>
-
 CardSet::CardSet() {
-	regenerateDisplay();
 }
 
 void CardSet::insertCard(Card card) {
 	cards.push_back(card);
-	regenerateDisplay();
 }
 
 Card CardSet::peekFront() {
@@ -27,39 +23,69 @@ bool CardSet::empty() {
 	return cards.empty();
 }
 
-bool CardSet::printCards(unsigned int line) {
-	if (line >= display.size()) {
-		std::cout << "        ";
-		return true;
+bool CardSet::printCards(unsigned int line, std::stringstream& output) {
+	int curLine = 0;
+
+	if (line == curLine) {
+		output << " ______ ";
+		return false;
 	}
-	std::cout << display.at(line);
-	return false;
-}
+	curLine++;
 
-void CardSet::printSpacer() {
-	std::cout << "          ";
-}
-
-void CardSet::regenerateDisplay() {
-	display.clear();
-
-	display.push_back(" ______ ");
-	
 	for (unsigned int i = 0; i + 1 < cards.size(); i++) {
-		display.push_back("|  " + cards.at(i).getCardString() + " |");
-		display.push_back("|------|");
+		if (line == curLine) {
+			output << "|  " + cards.at(i).getCardString() + " |";
+			return false;
+		}
+		curLine++;
+
+		if (line == curLine) {
+			output << "|------|";
+			return false;
+		}
+		curLine++;
 	}
 
-	for (int i = 0; i < 2; i++)
-		display.push_back("|      |");
+	for (int i = 0; i < 2; i++) {
+		if (line == curLine) {	
+			output << "|      |";
+			return false;
+		}
+		curLine++;
+	}
 
 	if (cards.empty()) {
-		display.push_back("|      |");
+		if (line == curLine) {
+			output << "|      |";
+			return false;
+		}
+		curLine++;
 	}
 	else {
-		display.push_back("|  " + cards.back().getCardString() + " |");
+		if (line == curLine) {
+			output << "|  " + cards.back().getCardString() + " |";
+			return false;
+		}
+		curLine++;
 	}
 
-	display.push_back("|      |");
-	display.push_back("|______|");
+	if (line == curLine) {
+		output << "|      |";
+		return false;
+	}
+	curLine++;
+
+	if (line == curLine) {
+		output << "|______|";
+		return false;
+	}
+	curLine++;
+
+	//if we are past the end of the set, just print an empty line
+	output << "        ";
+	return true;
+}
+
+void CardSet::printSpacer(std::stringstream& output) {
+	output << "          ";
 }

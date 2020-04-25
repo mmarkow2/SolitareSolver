@@ -1,7 +1,6 @@
 #include "Table.h"
 
 #include <exception>
-#include <iostream>
 #include <ctime>
 #include <random>
 
@@ -16,7 +15,9 @@ class EmptyDeckException : public std::exception
 Table::Table() {
 	// Initialize seed
 	std::srand(unsigned(std::time(0)));
+}
 
+void Table::initialize() {
 	//Create deck
 	std::vector<int> suits = { 0, 1, 2, 3 };
 
@@ -40,6 +41,14 @@ Table::Table() {
 	}
 }
 
+void Table::clean() {
+	for (int i = 0; i < 13; i++) {
+		deck[i] = std::stack<Card>();
+	}
+	reserves.clear();
+	piles.clear();
+}
+
 /*
 In here lies the core logic to the solver.
 We have the following resources available to us:
@@ -58,17 +67,17 @@ Piles: Our "win condition." We seek to make all piles have 13 cards ending with 
 bool Table::takeTurn() {
 	//First check if we can play any of our reserve cards and play them if so
 	for (unsigned int i = 0; i < reserves.size(); i++) {
-		CardSet currentReserve = reserves.at(i);
+		CardSet * currentReserve = &reserves.at(i);
 
 		//if we have a card in this reserve
-		if (!currentReserve.empty()) {
+		if (!currentReserve->empty()) {
 			//check if the top card can be placed anywhere
-			Card card = currentReserve.peekFront();
+			Card card = currentReserve->peekFront();
 			std::vector<int> potentials = availablePiles(card);
 
 			if (!potentials.empty()) {
 				//move the card between piles
-				currentReserve.popFront();
+				currentReserve->popFront();
 				piles.at(potentials.front()).insertCard(card);
 			}
 		}
@@ -92,9 +101,7 @@ bool Table::takeTurn() {
 	return emptyDeck();
 }
 
-void Table::printTable(int turn) {
-	std::cout << "-----------------------------  Turn " << turn << "  --------------------------------" << std::endl;
-
+void Table::printTable(std::stringstream& output) {
 	for (int i = 0; i < 2; i++) {
 		std::vector<CardSet> * row = i == 0 ? &reserves : &piles;
 		bool finished;
@@ -102,12 +109,12 @@ void Table::printTable(int turn) {
 		do {
 			finished = true;
 			for (unsigned int j = 0; j < row->size(); j++) {
-				finished &= row->at(j).printCards(line);
+				finished &= row->at(j).printCards(line, output);
 				if (j != row->size() - 1)
-					CardSet::printSpacer();
+					CardSet::printSpacer(output);
 			}
 
-			std::cout << std::endl;
+			output << std::endl;
 
 			line++;
 		} while (!finished);

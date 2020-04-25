@@ -8,8 +8,10 @@ class Table {
 public:
 	Table();
 
+	void initialize();
+	void clean();
 	bool takeTurn();
-	void printTable(int turn);
+	void printTable(std::stringstream& output);
 private:
 	Card drawCard();
 	bool emptyDeck();
