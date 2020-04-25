@@ -40,11 +40,61 @@ Table::Table() {
 	}
 }
 
+/*
+In here lies the core logic to the solver.
+We have the following resources available to us:
+
+Deck: This contains the remaining cards available in the deck 
+      (of course the order is an unknown to us)
+
+Reserves: Our inventory piles of which only the top card may be used
+
+Piles: Our "win condition." We seek to make all piles have 13 cards ending with a king.
+       Every pile has a multiple (the first pile moves in multiples of 1, 
+	   the second pile multiples of 2 and so on up to 4 piles).
+	   Cards can overlap after king and proceed to ace (until a pile has 13 cards)
+
+*/
 bool Table::takeTurn() {
-	return true;
+	//First check if we can play any of our reserve cards and play them if so
+	for (unsigned int i = 0; i < reserves.size(); i++) {
+		CardSet currentReserve = reserves.at(i);
+
+		//if we have a card in this reserve
+		if (!currentReserve.empty()) {
+			//check if the top card can be placed anywhere
+			Card card = currentReserve.peekFront();
+			std::vector<int> potentials = availablePiles(card);
+
+			if (!potentials.empty()) {
+				//move the card between piles
+				currentReserve.popFront();
+				piles.at(potentials.front()).insertCard(card);
+			}
+		}
+	}
+
+	//draw a card from the deck if we can't play any reserve cards
+	Card currentCard = drawCard();
+	std::vector<int> potentials = availablePiles(currentCard);
+
+	if (!potentials.empty()) {
+		piles.at(potentials.front()).insertCard(currentCard);
+	}
+	else {
+		//ideally, we have a strategy for where to place the reserve cards 
+		//but for now just place them randomly
+		reserves.at(std::rand() % reserves.size()).insertCard(currentCard);
+	}
+
+	//the game ends if the deck is empty
+	//we won if the reserves are empty at this point and lost if not
+	return emptyDeck();
 }
 
-void Table::printTable() {
+void Table::printTable(int turn) {
+	std::cout << "-----------------------------  Turn " << turn << "  --------------------------------" << std::endl;
+
 	for (int i = 0; i < 2; i++) {
 		std::vector<CardSet> * row = i == 0 ? &reserves : &piles;
 		bool finished;
@@ -91,4 +141,27 @@ Card Table::drawCard() {
 	Card card = deck[deckInd].top();
 	deck[deckInd].pop();
 	return card;
+}
+
+bool Table::emptyDeck() {
+	//the deck is not empty if a single val has a card
+	bool empty = true;
+	for (unsigned int i = 0; i < 13; i++) {
+		empty &= deck[i].empty();
+	}
+
+	return empty;
+}
+
+std::vector<int> Table::availablePiles(Card card) {
+	std::vector<int> result;
+	for (unsigned int i = 0; i < piles.size(); i++) {
+		int cardVal = piles.at(i).peekFront().getVal();
+		int nextCardVal = (cardVal + (i + 1)) % 13;
+
+		if (card.getVal() == nextCardVal) {
+			result.push_back(i);
+		}
+	}
+	return result;
 }

@@ -3,8 +3,6 @@
 #include <iostream>
 
 CardSet::CardSet() {
-	cards = std::vector<Card>();
-	display = std::vector<std::string>();
 	regenerateDisplay();
 }
 
@@ -13,7 +11,23 @@ void CardSet::insertCard(Card card) {
 	regenerateDisplay();
 }
 
-bool CardSet::printCards(int line) {
+Card CardSet::peekFront() {
+	return cards.back();
+}
+
+void CardSet::popFront() {
+	cards.pop_back();
+}
+
+size_t CardSet::getSize() {
+	return cards.size();
+}
+
+bool CardSet::empty() {
+	return cards.empty();
+}
+
+bool CardSet::printCards(unsigned int line) {
 	if (line >= display.size()) {
 		std::cout << "        ";
 		return true;
@@ -32,7 +46,7 @@ void CardSet::regenerateDisplay() {
 	display.push_back(" ______ ");
 	
 	for (unsigned int i = 0; i + 1 < cards.size(); i++) {
-		display.push_back("|  " + cards.at(i).getCardString() + "  |");
+		display.push_back("|  " + cards.at(i).getCardString() + " |");
 		display.push_back("|------|");
 	}
 
@@ -43,7 +57,7 @@ void CardSet::regenerateDisplay() {
 		display.push_back("|      |");
 	}
 	else {
-		display.push_back("|  " + cards.back().getCardString() + "  |");
+		display.push_back("|  " + cards.back().getCardString() + " |");
 	}
 
 	display.push_back("|      |");

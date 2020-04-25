@@ -9,7 +9,11 @@ public:
 	CardSet();
 
 	void insertCard(Card card);
-	bool printCards(int line);
+	Card peekFront();
+	void popFront();
+	size_t getSize();
+	bool empty();
+	bool printCards(unsigned int line);
 
 	static void printSpacer();
 private:
