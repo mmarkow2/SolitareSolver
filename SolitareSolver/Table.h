@@ -11,5 +11,6 @@ public:
 private:
 	std::stack<Card> deck[13];
 	
+	std::vector<CardSet> reserves;
 	std::vector<CardSet> piles;
 };

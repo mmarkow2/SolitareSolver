@@ -18,43 +18,35 @@ Table::Table() {
 		}
 	}
 
-	piles = std::vector<CardSet>();
+	for (int i = 0; i < 4; i++) {
+		CardSet pile;
+		reserves.push_back(pile);
+	}
 
-	CardSet pile1;
-	pile1.insertCard(deck[0].top());
-	deck[0].pop();
-
-	CardSet pile2;
-	pile2.insertCard(deck[1].top());
-	deck[1].pop();
-
-	CardSet pile3;
-	pile3.insertCard(deck[2].top());
-	deck[2].pop();
-
-	CardSet pile4;
-	pile4.insertCard(deck[3].top());
-	deck[3].pop();
-
-	piles.push_back(pile1);
-	piles.push_back(pile2);
-	piles.push_back(pile3);
-	piles.push_back(pile4);
+	for (int i = 0; i < 4; i++) {
+		CardSet pile;
+		pile.insertCard(deck[i].top());
+		deck[i].pop();
+		piles.push_back(pile);
+	}
 }
 
 void Table::printTable() {
-	int line = 0;
-	bool finished;
-	do {
-		finished = true;
-		for (int i = 0; i < piles.size(); i++) {
-			finished &= piles.at(i).printCards(line);
-			if (i != piles.size() - 1)
-				CardSet::printSpacer();
-		}
+	for (int i = 0; i < 2; i++) {
+		std::vector<CardSet> * row = i == 0 ? &reserves : &piles;
+		bool finished;
+		int line = 0;
+		do {
+			finished = true;
+			for (unsigned int j = 0; j < row->size(); j++) {
+				finished &= row->at(j).printCards(line);
+				if (j != row->size() - 1)
+					CardSet::printSpacer();
+			}
 
-		std::cout << std::endl;
+			std::cout << std::endl;
 
-		line++;
-	} while (!finished);
+			line++;
+		} while (!finished);
+	}
 }

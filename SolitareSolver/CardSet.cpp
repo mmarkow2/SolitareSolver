@@ -5,6 +5,7 @@
 CardSet::CardSet() {
 	cards = std::vector<Card>();
 	display = std::vector<std::string>();
+	regenerateDisplay();
 }
 
 void CardSet::insertCard(Card card) {
@@ -28,12 +29,9 @@ void CardSet::printSpacer() {
 void CardSet::regenerateDisplay() {
 	display.clear();
 
-	if (cards.empty())
-		return;
-
 	display.push_back(" ______ ");
 	
-	for (int i = 0; i < cards.size() - 1; i++) {
+	for (unsigned int i = 0; i + 1 < cards.size(); i++) {
 		display.push_back("|  " + cards.at(i).getCardString() + "  |");
 		display.push_back("|------|");
 	}
@@ -41,7 +39,12 @@ void CardSet::regenerateDisplay() {
 	for (int i = 0; i < 2; i++)
 		display.push_back("|      |");
 
-	display.push_back("|  " + cards.back().getCardString() + "  |");
+	if (cards.empty()) {
+		display.push_back("|      |");
+	}
+	else {
+		display.push_back("|  " + cards.back().getCardString() + "  |");
+	}
 
 	display.push_back("|      |");
 	display.push_back("|______|");
