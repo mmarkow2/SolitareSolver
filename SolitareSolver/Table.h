@@ -12,6 +12,7 @@ public:
 	void clean();
 	bool takeTurn();
 	void printTable(std::stringstream& output);
+	bool wonGame();
 private:
 	Card drawCard();
 	bool emptyDeck();

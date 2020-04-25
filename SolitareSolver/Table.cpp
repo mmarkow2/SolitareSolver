@@ -121,6 +121,15 @@ void Table::printTable(std::stringstream& output) {
 	}
 }
 
+bool Table::wonGame() {
+	bool won = true;
+
+	for (int i = 0; i < reserves.size(); i++) {
+		won &= reserves.at(i).empty();
+	}
+	return won;
+}
+
 Card Table::drawCard() {
 	//generate an array of markers for each card in the deck
 	//the idea is each number in markers represents the index
