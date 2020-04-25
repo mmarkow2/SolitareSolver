@@ -1,24 +1,40 @@
 #include "Table.h"
 
 #include <iostream>
+#include <ctime>
+#include <random>
 
 Table::Table() {
+	// Initialize seed
+	std::srand(unsigned(std::time(0)));
+
+	//Create deck
+	std::vector<int> suits = { 0, 1, 2, 3 };
+
+	for (int i = 0; i < 13; i++) {
+		std::shuffle(suits.begin(), suits.end(), std::default_random_engine(rand()));
+		for (int j = 0; j < 4; j++) {
+			deck[i].push(Card(i + 1, suits[j]));
+		}
+	}
+
 	piles = std::vector<CardSet>();
 
-	CardSet pile1 = CardSet();
-	pile1.insertCard(Card(1, 1));
-	pile1.insertCard(Card(5, 3));
-	pile1.insertCard(Card(11, 2));
-	pile1.insertCard(Card(12, 0));
+	CardSet pile1;
+	pile1.insertCard(deck[0].top());
+	deck[0].pop();
 
-	CardSet pile2 = CardSet();
-	pile2.insertCard(Card(9, 3));
+	CardSet pile2;
+	pile2.insertCard(deck[1].top());
+	deck[1].pop();
 
-	CardSet pile3 = CardSet();
+	CardSet pile3;
+	pile3.insertCard(deck[2].top());
+	deck[2].pop();
 
-	CardSet pile4 = CardSet();
-	pile4.insertCard(Card(2, 2));
-	pile4.insertCard(Card(4, 0));
+	CardSet pile4;
+	pile4.insertCard(deck[3].top());
+	deck[3].pop();
 
 	piles.push_back(pile1);
 	piles.push_back(pile2);
