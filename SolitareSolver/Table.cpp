@@ -65,40 +65,18 @@ Piles: Our "win condition." We seek to make all piles have 13 cards ending with 
 
 */
 bool Table::takeTurn() {
-	//First check if we can play any of our reserve cards and play them if so
-	for (unsigned int i = 0; i < reserves.size(); i++) {
-		CardSet * currentReserve = &reserves.at(i);
-
-		//if we have a card in this reserve
-		if (!currentReserve->empty()) {
-			//check if the top card can be placed anywhere
-			Card card = currentReserve->peekFront();
-			std::vector<int> potentials = availablePiles(card);
-
-			if (!potentials.empty()) {
-				//move the card between piles
-				currentReserve->popFront();
-				piles.at(potentials.front()).insertCard(card);
-			}
-		}
-	}
-
-	//draw a card from the deck if we can't play any reserve cards
-	Card currentCard = drawCard();
-	std::vector<int> potentials = availablePiles(currentCard);
-
-	if (!potentials.empty()) {
-		piles.at(potentials.front()).insertCard(currentCard);
-	}
-	else {
-		//ideally, we have a strategy for where to place the reserve cards 
-		//but for now just place them randomly
-		reserves.at(std::rand() % reserves.size()).insertCard(currentCard);
-	}
+	playReserves();
+	playCard();
 
 	//the game ends if the deck is empty
-	//we won if the reserves are empty at this point and lost if not
-	return emptyDeck();
+	//however, we should play any final reserve cards first
+	if (emptyDeck()) {
+		playReserves();
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 void Table::printTable(std::stringstream& output) {
@@ -169,11 +147,63 @@ bool Table::emptyDeck() {
 	return empty;
 }
 
+void Table::playReserves() {
+	//bool used to reset if we play a reserve card
+	bool playedReserve = true;
+
+	while (playedReserve) {
+		playedReserve = false;
+
+		//Check if we can play any of our reserve cards and play them if so
+		for (unsigned int i = 0; i < reserves.size() && !playedReserve; i++) {
+			CardSet* currentReserve = &reserves.at(i);
+
+			//if we have a card in this reserve
+			if (!currentReserve->empty()) {
+				//check if the top card can be placed anywhere
+				Card card = currentReserve->peekFront();
+				std::vector<int> potentials = availablePiles(card);
+
+				if (!potentials.empty()) {
+					//move the card between piles
+					currentReserve->popFront();
+
+					//ideally, we have a strategy for where to place the reserve cards 
+					//but for now just place them randomly
+					piles.at(potentials.at(std::rand() % potentials.size())).insertCard(card);
+
+					//now that we have removed a card from the reserves, 
+					//we must check all the reserves again
+					playedReserve = true;
+				}
+			}
+		}
+	}
+}
+
+void Table::playCard() {
+	//draw a card from the deck
+	Card currentCard = drawCard();
+	std::vector<int> potentials = availablePiles(currentCard);
+
+	if (!potentials.empty()) {
+		//ideally, we have a strategy for where to place a card from the deck
+		//in scenarios where the are multiple possibilities
+		//for now, place it randomly
+		piles.at(potentials.at(std::rand() % potentials.size())).insertCard(currentCard);
+	}
+	else {
+		//ideally, we also have a strategy for where to place the reserve cards 
+		//but for now just place them randomly
+		reserves.at(std::rand() % reserves.size()).insertCard(currentCard);
+	}
+}
+
 std::vector<int> Table::availablePiles(Card card) {
 	std::vector<int> result;
-	for (unsigned int i = 0; i < piles.size(); i++) {
+	for (unsigned int i = 0; i < piles.size() && piles.at(i).getSize() < 13; i++) {
 		int cardVal = piles.at(i).peekFront().getVal();
-		int nextCardVal = (cardVal + (i + 1)) % 13;
+		int nextCardVal = (cardVal + i) % 13 + 1;
 
 		if (card.getVal() == nextCardVal) {
 			result.push_back(i);

@@ -16,6 +16,8 @@ public:
 private:
 	Card drawCard();
 	bool emptyDeck();
+	void playReserves();
+	void playCard();
 	std::vector<int> availablePiles(Card card);
 
 	std::stack<Card> deck[13];
